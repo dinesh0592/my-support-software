@@ -62,11 +62,11 @@
                 let content = $("#content").val();
 
                 if (id) {
-                    // Edit article
-                    articles = articles.map(article => 
-                        article.id == id ? { id, title, content } : article);
+                    if (confirm("Are you sure you want to edit this article?")) {
+                        articles = articles.map(article => 
+                            article.id == id ? { id, title, content } : article);
+                    }
                 } else {
-                    // Create new article
                     articles.push({ id: Date.now(), title, content });
                 }
 
@@ -92,15 +92,19 @@
 
         function editArticle(id) {
             let article = articles.find(article => article.id == id);
-            $("#articleId").val(article.id);
-            $("#title").val(article.title);
-            $("#content").val(article.content);
+            if (confirm("Do you want to edit this article?")) {
+                $("#articleId").val(article.id);
+                $("#title").val(article.title);
+                $("#content").val(article.content);
+            }
         }
 
         function deleteArticle(id) {
-            articles = articles.filter(article => article.id != id);
-            localStorage.setItem('articles', JSON.stringify(articles));
-            renderArticles();
+            if (confirm("Are you sure you want to delete this article?")) {
+                articles = articles.filter(article => article.id != id);
+                localStorage.setItem('articles', JSON.stringify(articles));
+                renderArticles();
+            }
         }
     </script>
 </body>
