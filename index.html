@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Support Software</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">My Support Software</h2>
+        
+        <!-- Article Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Create / Edit Article</h5>
+                <form id="articleForm">
+                    <input type="hidden" id="articleId">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Content</label>
+                        <textarea class="form-control" id="content" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Articles List -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Published Articles</h5>
+                <ul id="articlesList" class="list-group"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let articles = JSON.parse(localStorage.getItem('articles')) || [];
+        
+        $(document).ready(function () {
+            renderArticles();
+
+            $("#articleForm").submit(function (event) {
+                event.preventDefault();
+                let id = $("#articleId").val();
+                let title = $("#title").val();
+                let content = $("#content").val();
+
+                if (id) {
+                    // Edit article
+                    articles = articles.map(article => 
+                        article.id == id ? { id, title, content } : article);
+                } else {
+                    // Create new article
+                    articles.push({ id: Date.now(), title, content });
+                }
+
+                localStorage.setItem('articles', JSON.stringify(articles));
+                $("#articleForm")[0].reset();
+                $("#articleId").val("");
+                renderArticles();
+            });
+        });
+
+        function renderArticles() {
+            let list = $("#articlesList");
+            list.empty();
+            articles.forEach(article => {
+                list.append(`<li class="list-group-item">
+                    <h5>${article.title}</h5>
+                    <p>${article.content}</p>
+                    <button class="btn btn-warning btn-sm" onclick="editArticle(${article.id})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteArticle(${article.id})">Delete</button>
+                </li>`);
+            });
+        }
+
+        function editArticle(id) {
+            let article = articles.find(article => article.id == id);
+            $("#articleId").val(article.id);
+            $("#title").val(article.title);
+            $("#content").val(article.content);
+        }
+
+        function deleteArticle(id) {
+            articles = articles.filter(article => article.id != id);
+            localStorage.setItem('articles', JSON.stringify(articles));
+            renderArticles();
+        }
+    </script>
+</body>
+</html>
